@@ -81,12 +81,42 @@ class SpaceInvaders():
     def full_image(self):
         return pygame.surfarray.array3d(self.screen)
 
+    #Get between two object on X dimension 
+    def get_diff_X(self, x1, x2):
+        return 800+int((x2-x1)/abs(x2-x1)*(x1 - x2))
+    def get_diff_Y(self, y1, y2):
+        return  600+int((y2-y1)/abs(y2-y1)*(y1 - y2))
+
+    def dist(self,x1, y1, x2, y2):
+        #(x2-x1)/math.abs(x2-x1)*
+        return 800+int((x2-x1)/abs(x2-x1)*(math.sqrt((y2-y1)**2 + (x2-x1)**2)))
+
     def get_state(self):
         """ A COMPLETER AVEC VOTRE ETAT
         Cette méthode doit renvoyer l'état du système comme vous aurez choisi de
         le représenter. Vous pouvez utiliser les accesseurs ci-dessus pour cela. 
         """
-        return "L'état n'est pas implémenté (SpaceInvaders.get_state)"
+        #return self.get_indavers_Y()
+        #return self.full_image()
+        #return (self.get_player_X(), self.get_player_Y(), self.get_indavers_X(), self.get_indavers_Y(), self.get_bullet_X(), self.get_bullet_Y(), self.get_bullet_state())
+        #return the distance between the player and the invader
+        ecart_X = []
+        ecart_Y = []
+        number = 0
+        for Y in self.get_indavers_Y() :
+            ecart_X.append(self.get_diff_X(self.get_player_X(), self.get_indavers_X()[number]))
+            ecart_Y.append(self.get_diff_Y(self.get_player_Y(), self.get_indavers_Y()[number]))
+            number += 1
+
+
+
+        return ecart_X[0]
+        #return int(math.sqrt((self.get_indavers_Y()[0]-self.get_player_Y())**2 + (self.get_indavers_X()[0]-self.get_player_X())**2))
+
+        #return "L'état n'est pas implémenté (SpaceInvaders.get_state)"
+    
+    #Return the distance between two 2D object
+
 
     def reset(self):
         """Reset the game at the initial state.
@@ -104,7 +134,7 @@ class SpaceInvaders():
         self.invader_Xchange = []
         self.invader_Ychange = []
         for _ in range(SpaceInvaders.NO_INVADERS):
-            self.invaderImage.append(pygame.image.load(getURL('data/alien.png')))
+            self.invaderImage.append(pygame.image.load(getURL('data/con.png')))
             self.invader_X.append(random.randint(64, 737))
             self.invader_Y.append(random.randint(30, 180))
             self.invader_Xchange.append(1.2)
