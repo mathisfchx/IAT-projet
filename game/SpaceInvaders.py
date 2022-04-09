@@ -83,9 +83,9 @@ class SpaceInvaders():
 
     #Get between two object on X dimension 
     def get_diff_X(self, x1, x2):
-        return 800+int((x2-x1)/abs(x2-x1)*(x1 - x2))
+        return 800+int((x1 - x2))
     def get_diff_Y(self, y1, y2):
-        return  600+int((y2-y1)/abs(y2-y1)*(y1 - y2))
+        return  600+int((y1 - y2))
 
     def dist(self,x1, y1, x2, y2):
         #(x2-x1)/math.abs(x2-x1)*
@@ -183,6 +183,8 @@ class SpaceInvaders():
         for i in range(SpaceInvaders.NO_INVADERS):
             self.invader_X[i] += self.invader_Xchange[i]
     
+        if abs(self.player_X - self.invader_X[0]) <= 100:
+            reward = 0
         # bullet movement
         if self.bullet_Y <= 0:
             self.bullet_Y = 600
@@ -200,14 +202,14 @@ class SpaceInvaders():
                         self.invader_Y[j] = 2000
                     is_done = True
                     break
-                
+
             if self.invader_X[i] >= 735 or self.invader_X[i] <= 0:
                 self.invader_Xchange[i] *= -1
                 self.invader_Y[i] += self.invader_Ychange[i]
             # Collision
             collision = self.isCollision(self.bullet_X, self.invader_X[i], self.bullet_Y, self.invader_Y[i])
             if collision:
-                reward = 1
+                reward = 10
                 self.score_val += 1
                 self.bullet_Y = 600
                 self.bullet_state = "rest"
