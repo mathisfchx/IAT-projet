@@ -25,7 +25,7 @@ class QAgent():
         try:
             self.Q = np.load(f"qagent_{self.train_id}.npy")
         except:
-            self.Q = np.zeros((20,2, self.numstates, self.num_actions))
+            self.Q = np.zeros((64,2,20,2,self.num_actions))
             print("Q matrix not found, creating a new one")
             #self.random_fill()
         self.reset()
@@ -44,7 +44,7 @@ class QAgent():
         """
         Réinitialise l'état de l'agent.
         """
-        self.state = (None, None, None)
+        self.state = (None, None,None,None)
         self.action = None
         self.reward = None
 
@@ -108,7 +108,7 @@ class QAgent():
 
     #return sigmoide fonciton of episode
     def sigmoid(self, x):
-        return (1/(1+np.exp((-x+500)/150)))
+        return (1/(1+np.exp((-x+1800)/600)))
         
     def update(self, state, action, reward, next_state):
         """

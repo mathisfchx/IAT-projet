@@ -4,6 +4,10 @@ import math
 from pygame import mixer
 import numpy as np
 import os
+#import plot 
+import matplotlib.pyplot as plt
+#timer
+import time
 
 
 def getURL(filename):
@@ -106,20 +110,44 @@ class SpaceInvaders():
         #return the distance between the player and the invader
         ecart_X = []
         ecart_Y = []
+        ecart_Y_bullet = []
+        ecart_X_bullet = []
         X_abs = []
         number = 0
+        bullet_state = 0 
+        if self.get_bullet_state() == "fire":
+            bullet_state = 1
+        
         for Y in self.get_indavers_Y() :
             ecart_X.append(self.get_diff_X(self.get_player_X(), self.get_indavers_X()[number]))
             ecart_Y.append(self.get_diff_Y(self.get_player_Y(), self.get_indavers_Y()[number]))
+            ecart_Y_bullet.append(self.get_diff_Y(self.get_bullet_Y(), self.get_player_Y()))
+            ecart_X_bullet.append(self.get_diff_X(self.get_bullet_X(), self.get_player_X()))
             X_abs.append(self.get_player_X())
             number += 1
 
-        return ecart_Y[0],self.direction(), ecart_X[0] #,X_abs[0]
+        return ecart_X[0],self.direction(),ecart_Y[0],bullet_state #,X_abs[0]
         #return int(math.sqrt((self.get_indavers_Y()[0]-self.get_player_Y())**2 + (self.get_indavers_X()[0]-self.get_player_X())**2))
 
         #return "L'état n'est pas implémenté (SpaceInvaders.get_state)"
     
     #Return the distance between two 2D object
+
+    #make sliding average score_val for each episode ( for smoothing the score )
+    def sliding_average(self, score_val, score_avg,episode,window):
+
+        score_avg = 0
+        for i in window : 
+            score_avg += i
+        score_avg /= len(window)
+        print("score_avg : ", score_avg)
+        return score_avg 
+    #plot the score in function of the episode
+    def plot_score(self, score_avg, episode):
+        plt.plot(episode, score_avg, 'b')
+        plt.xlabel('Episode')
+        plt.ylabel('Score')
+        plt.show()
 
 
     def reset(self):
@@ -177,7 +205,7 @@ class SpaceInvaders():
             self.player_Xchange = 0
             reward = -1
             # Fixing the change of direction of bullet
-            if self.bullet_state is "rest":
+            if self.bullet_state == "rest":
                 self.bullet_X = self.player_X
                 self.move_bullet(self.bullet_X, self.bullet_Y)
         if action == 3: # NO ACTION 
@@ -194,7 +222,7 @@ class SpaceInvaders():
         if self.bullet_Y <= 0:
             self.bullet_Y = 600
             self.bullet_state = "rest"
-        if self.bullet_state is "fire":
+        if self.bullet_state == "fire":
             self.move_bullet(self.bullet_X, self.bullet_Y)
             self.bullet_Y -= self.bullet_Ychange
     
@@ -206,7 +234,7 @@ class SpaceInvaders():
                     for j in range(SpaceInvaders.NO_INVADERS):
                         self.invader_Y[j] = 600
                     is_done = True
-                    reward = -50
+                    reward = -10
                     break
 
             if self.invader_X[i] >= 735 or self.invader_X[i] <= 0:
@@ -215,7 +243,7 @@ class SpaceInvaders():
             # Collision
             collision = self.isCollision(self.bullet_X, self.invader_X[i], self.bullet_Y, self.invader_Y[i])
             if collision:
-                reward = 30
+                reward = 1
                 self.score_val += 1
                 self.bullet_Y = 600
                 self.bullet_state = "rest"

@@ -4,6 +4,8 @@ from game.SpaceInvaders import SpaceInvaders
 from controller.keyboard import KeyboardController
 from controller.random_agent import RandomAgent
 from controller.qagent import QAgent
+#import for plot 
+import matplotlib.pyplot as plt
 import sys
 import argparse
 
@@ -128,7 +130,15 @@ def learn(n_episodes = 1000, max_steps=5000):
     game = SpaceInvaders(display=args.play)
     
     n_steps = np.zeros(n_episodes) + max_steps
-    
+    courbe_1 = []
+    episode_1 = []
+    score_avg = 0
+    initial_score_val =game.score_val
+    window_size = 30
+    sliding_window = []
+    #fill a array with 0 until have x 0 
+    for i in range(window_size):
+        sliding_window.append(0)
     # Execute N episodes 
     try:
         for episode in range(n_episodes):
@@ -148,10 +158,27 @@ def learn(n_episodes = 1000, max_steps=5000):
                     n_steps[episode] = step + 1  
                     break
                 state = next_state
+            print("Score :", game.score_val)
+            print(step)
+            if episode < 10:
+                sliding_window[episode] = game.score_val
+                courbe_1.append(game.score_val)
+                episode_1.append(episode)
+            else:
+                sliding_window[episode % window_size] = game.score_val
+                if initial_score_val == 0 :     
+                    initial_score_val = game.score_val
+                
+                courbe_1.append(game.sliding_average( initial_score_val ,courbe_1[episode-1],episode,sliding_window))
+                episode_1.append(episode)
             # Mets à jour la valeur du epsilon
             controller.update_exploration_rate(nb_episode = episode)
             # Sauvegarde les données
             controller.save()
+        
+        print(courbe_1)
+        print(episode_1)
+        game.plot_score(courbe_1, episode_1)
     except KeyboardInterrupt:
         controller.save()
         sys.exit(0)
