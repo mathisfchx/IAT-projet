@@ -83,9 +83,10 @@ class SpaceInvaders():
 
     #Get between two object on X dimension 
     def get_diff_X(self, x1, x2):
-        return 800+int((x1 - x2))
+        return 32+int((x1 - x2)/25)
+
     def get_diff_Y(self, y1, y2):
-        return  600+int((y1 - y2))
+        return  int(abs((y1 - y2)/50)) if int(abs((y1 - y2)/50)) < 20 else 19
 
     def dist(self,x1, y1, x2, y2):
         #(x2-x1)/math.abs(x2-x1)*
@@ -102,15 +103,15 @@ class SpaceInvaders():
         #return the distance between the player and the invader
         ecart_X = []
         ecart_Y = []
+        X_abs = []
         number = 0
         for Y in self.get_indavers_Y() :
             ecart_X.append(self.get_diff_X(self.get_player_X(), self.get_indavers_X()[number]))
             ecart_Y.append(self.get_diff_Y(self.get_player_Y(), self.get_indavers_Y()[number]))
+            X_abs.append(self.get_player_X())
             number += 1
 
-
-
-        return ecart_X[0]
+        return ecart_Y[0],ecart_X[0] #,X_abs[0]
         #return int(math.sqrt((self.get_indavers_Y()[0]-self.get_player_Y())**2 + (self.get_indavers_X()[0]-self.get_player_X())**2))
 
         #return "L'état n'est pas implémenté (SpaceInvaders.get_state)"
@@ -199,8 +200,9 @@ class SpaceInvaders():
             if self.invader_Y[i] >= 450:
                 if abs(self.player_X-self.invader_X[i]) < 80:
                     for j in range(SpaceInvaders.NO_INVADERS):
-                        self.invader_Y[j] = 2000
+                        self.invader_Y[j] = 600
                     is_done = True
+                    reward = -50
                     break
 
             if self.invader_X[i] >= 735 or self.invader_X[i] <= 0:

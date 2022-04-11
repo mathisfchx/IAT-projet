@@ -1,4 +1,5 @@
 from time import sleep
+import numpy as np
 from game.SpaceInvaders import SpaceInvaders
 from controller.keyboard import KeyboardController
 from controller.random_agent import RandomAgent
@@ -9,9 +10,13 @@ import argparse
 parser = argparse.ArgumentParser(description='Run game')
 parser.add_argument('--play', action="store_true", help='Run the program without trainning parameters')
 parser.add_argument("--train_id", type=int, required=True, help="Train id")
-parser.add_argument("--epsilon", type=float, required=False, help="Epsilon", default=0.8)
-parser.add_argument("--gamma", type=float, required=False, help="Gamma", default=0.9)
-parser.add_argument("--alpha", type=float, required=False, help="Alpha", default=0.1)
+parser.add_argument("--epsilon", type=float, required=False, help="Epsilon paramètre d'exploration", default=0.8)
+parser.add_argument("--gamma", type=float, required=False, help="Gamma paramètre de récompense future", default=0.9)
+parser.add_argument("--alpha", type=float, required=False, help="Alpha paramètre d'apprentissage", default=0.1)
+parser.add_argument("--num_state", type=int, required=False, help="Nombre d'états", default=64)
+parser.add_argument("--num_action", type=int, required=False, help="Nombre d'actions", default=4)
+parser.add_argument("--n_episodes", type=int, required=False, help="Nombre d'épisodes", default=1000)
+parser.add_argument("--n_steps", type=int, required=False, help="Nombre d'étapes", default=1000)
 
 args = parser.parse_args()
 def main(eps = 0):
@@ -24,7 +29,7 @@ def main(eps = 0):
         args.epsilon = 0.0
     if eps > 0:
         args.epsilon = eps
-    controller = QAgent(num_actions=4, alpha=args.alpha, gamma=args.gamma, epsilon=args.epsilon, train_id=args.train_id)
+    controller = QAgent(num_actions=args.num_action, num_state=args.num_state, alpha=args.alpha, gamma=args.gamma, epsilon=args.epsilon, train_id=args.train_id)
     is_done = False
     state = game.reset()
     rewards = {}
@@ -43,12 +48,13 @@ def main(eps = 0):
             #print("reward", reward)
             #print("is_done", is_done)
             #exit(0)
-            controller.update(int(state), action, reward, int(next_state))
-            controller.update_exploration_rate(game.score_val)
+            
+            controller.update(state, action, reward, next_state)
+            controller.update_exploration_rate(tries)
             if reward > 0 and not args.play:
                 rewards[tries] = reward
                 total_rewards += reward
-                if reward == 10:
+                if reward == 1:
                     
                     print("state", state)
                     print("action", action)
@@ -78,8 +84,82 @@ def main(eps = 0):
     except KeyboardInterrupt:
         controller.save()
         sys.exit(0)
+#check if a 3D matrix is empty  (full 0 )
+def is_empty(matrix):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            for k in range(len(matrix[i][j])):
+                if matrix[i][j][k] != 0:
+                    return False
+
+def play() :
+    print("playing todo")
+    args.epsilon = 0.0
+    controller = QAgent(num_actions=args.num_action, num_state=args.num_state, alpha=args.alpha, gamma=args.gamma, epsilon=args.epsilon, train_id=args.train_id)
+    print(is_empty(controller.Q))
+
+    is_done = False
+    game = SpaceInvaders(display=args.play)
+    state = game.reset()
+    try :
+        while is_done == False:
+            action = controller.select_action(state)
+            next_state, _, is_done = game.step(action)
+            state = next_state
+            sleep(0.0001)
+    except KeyboardInterrupt:
+        sys.exit(0)
+
+def learn(n_episodes = 1000, max_steps=5000):
+    """Cette méthode exécute l'algorithme de q-learning. 
+        Il n'y a pas besoin de la modifier. Simplement la comprendre et faire le parallèle avec le cours.
+        :param env: L'environnement 
+        :type env: gym.Envselect_action
+        :param num_episodes: Le nombre d'épisode
+        :type num_episodes: int
+        :param max_num_steps: Le nombre maximum d'étape par épisode
+        :type max_num_steps: int
+        # Visualisation des données
+        Elle doit proposer l'option de stockage de (i) la fonction de valeur & (ii) la Q-valeur 
+        dans un fichier de log
+        """
+    controller = QAgent(num_actions=args.num_action, num_state=args.num_state, alpha=args.alpha, gamma=args.gamma, epsilon=args.epsilon, train_id=args.train_id)
+    is_done = False
+    game = SpaceInvaders(display=args.play)
+    
+    n_steps = np.zeros(n_episodes) + max_steps
+    
+    # Execute N episodes 
+    try:
+        for episode in range(n_episodes):
+            print("Episode :", episode)
+            print("Epsilon :", controller.epsilon)
+            # Reinitialise l'environnement
+            state = game.reset()
+            # Execute K steps 
+            for step in range(max_steps):
+                # Selectionne une action 
+                action = controller.select_action(state)
+                # Echantillonne l'état suivant et la récompense
+                next_state, reward, is_done = game.step(action)
+                # Mets à jour la fonction de valeur Q
+                controller.update(state, action, reward, next_state)
+                if is_done:
+                    n_steps[episode] = step + 1  
+                    break
+                state = next_state
+            # Mets à jour la valeur du epsilon
+            controller.update_exploration_rate(nb_episode = episode)
+            # Sauvegarde les données
+            controller.save()
+    except KeyboardInterrupt:
+        controller.save()
+        sys.exit(0)
+
 
 if __name__ == '__main__' :
-    eps = 0
-    while True:
-        eps = main(eps)
+    if args.play:
+        main()
+        play()
+    else:
+        learn(n_episodes = args.n_episodes, max_steps=args.n_steps)
