@@ -49,7 +49,7 @@ def main(eps = 0):
             #print("is_done", is_done)
             #exit(0)
             
-            controller.update(state, action, reward, next_state)
+            #controller.update(state, action, reward, next_state)
             controller.update_exploration_rate(tries)
             if reward > 0 and not args.play:
                 rewards[tries] = reward

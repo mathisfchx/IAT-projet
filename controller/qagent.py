@@ -25,7 +25,7 @@ class QAgent():
         try:
             self.Q = np.load(f"qagent_{self.train_id}.npy")
         except:
-            self.Q = np.zeros((20, self.numstates, self.num_actions))
+            self.Q = np.zeros((20,2, self.numstates, self.num_actions))
             print("Q matrix not found, creating a new one")
             #self.random_fill()
         self.reset()
@@ -44,7 +44,7 @@ class QAgent():
         """
         Réinitialise l'état de l'agent.
         """
-        self.state = (None, None)
+        self.state = (None, None, None)
         self.action = None
         self.reward = None
 
@@ -59,11 +59,7 @@ class QAgent():
             return np.random.randint(self.num_actions)
         else:
             #print("greedy action")
-            y,x = self.state
-            if x == None or y == None:
-                return np.random.randint(self.num_actions)
-            #print(f"Q[{y},{x}] = {self.Q[y][x]}")
-            return np.argmax(self.Q[y][x])
+            return np.argmax(self.Q[self.state])
 
     def learn(self, env, n_episodes, max_steps):
         """Cette méthode exécute l'algorithme de q-learning. 
@@ -132,8 +128,8 @@ class QAgent():
         #   print(tabulate(self.Q[self.state][self.action]))
         #print(f"Q[{y},{x},{self.action}] = {self.Q[y][x][self.action]}")
         #self.Q[self.state][action] = (1. - self.alpha) * self.Q[self.state][action] + self.alpha * (reward + self.gamma * np.max(self.Q[self.next_state]))
-        if reward == -1:
-            print(f"État de mon Q : {self.Q[state]}")
+        #if reward == -1:
+            #print(f"État de mon Q : {self.Q[state]}")
 
     def update_exploration_rate(self, nb_episode):
         """

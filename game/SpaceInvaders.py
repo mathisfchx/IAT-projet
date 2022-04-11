@@ -86,7 +86,10 @@ class SpaceInvaders():
         return 32+int((x1 - x2)/25)
 
     def get_diff_Y(self, y1, y2):
-        return  int(abs((y1 - y2)/50)) if int(abs((y1 - y2)/50)) < 20 else 19
+        return  int(abs((y1 - y2)/50)) if int(abs((y1 - y2)/50)) < 16 else 15
+
+    def direction(self):
+        return 0 if self.invader_Xchange[0] < 0 else 1
 
     def dist(self,x1, y1, x2, y2):
         #(x2-x1)/math.abs(x2-x1)*
@@ -111,7 +114,7 @@ class SpaceInvaders():
             X_abs.append(self.get_player_X())
             number += 1
 
-        return ecart_Y[0],ecart_X[0] #,X_abs[0]
+        return ecart_Y[0],self.direction(), ecart_X[0] #,X_abs[0]
         #return int(math.sqrt((self.get_indavers_Y()[0]-self.get_player_Y())**2 + (self.get_indavers_X()[0]-self.get_player_X())**2))
 
         #return "L'état n'est pas implémenté (SpaceInvaders.get_state)"
@@ -172,6 +175,7 @@ class SpaceInvaders():
             self.player_Xchange = 1.7
         if action == 2: # FIRE
             self.player_Xchange = 0
+            reward = -1
             # Fixing the change of direction of bullet
             if self.bullet_state is "rest":
                 self.bullet_X = self.player_X
@@ -211,7 +215,7 @@ class SpaceInvaders():
             # Collision
             collision = self.isCollision(self.bullet_X, self.invader_X[i], self.bullet_Y, self.invader_Y[i])
             if collision:
-                reward = 10
+                reward = 30
                 self.score_val += 1
                 self.bullet_Y = 600
                 self.bullet_state = "rest"
