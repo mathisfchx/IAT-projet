@@ -1,30 +1,26 @@
 # IAT-projet
-Welcome in the github designed for the IAT-project 2022.
+To run the project, you need to install the dependencies.
 
-## Setup
-
-1. Get the source code by cloning this github locally
 ```bash
-git clone https://github.com/aurelienDelageInsaLyon/IAT-projet
-cd IAT-projet
+pip install -r requirements.txt
 ```
 
-2. Install the dependancies
+You may run the project with the following command:
+
 ```bash
-pip3 install -r requirements.txt
+python3 run_game.py --train_id <train_id> 
 ```
 
-3. Play the game 
+You can also define optional parameters:
+
 ```bash
-python3 run_game.py
+python3 run_game.py --train_id <train_id> --epsilon <epsilon> --alpha <alpha> --gamma <gamma>
 ```
 
-You can move the ship using the keys ← et → of your keyboard and fire with space.
+Finally, you can test the project with the following command:
 
-## Read the subject
+```bash
+python3 run_game.py --train_id <train_id> --play
+```
 
-A file `subject.pdf` containing the walkthrough of the project is available.
-
-## Start coding !
-
-Gl & hf
+By adding the play parameter, the game will be played with the trained agent, epsillon will be set to 0.0
