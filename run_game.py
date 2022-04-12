@@ -125,7 +125,7 @@ def learn(n_episodes = 1000, max_steps=5000):
         Elle doit proposer l'option de stockage de (i) la fonction de valeur & (ii) la Q-valeur 
         dans un fichier de log
         """
-    controller = QAgent(num_actions=args.num_action, num_state=args.num_state, alpha=args.alpha, gamma=args.gamma, epsilon=args.epsilon, train_id=args.train_id)
+    controller = QAgent(num_actions=args.num_action, num_state=args.num_state, alpha=args.alpha, gamma=args.gamma, epsilon=args.epsilon, train_id=args.train_id, episodes=n_episodes)
     is_done = False
     game = SpaceInvaders(display=args.play)
     
@@ -139,6 +139,7 @@ def learn(n_episodes = 1000, max_steps=5000):
     #fill a array with 0 until have x 0 
     for i in range(window_size):
         sliding_window.append(0)
+    logs = np.zeros((n_episodes,args.num_action))
     # Execute N episodes 
     try:
         for episode in range(n_episodes):
@@ -146,10 +147,14 @@ def learn(n_episodes = 1000, max_steps=5000):
             print("Epsilon :", controller.epsilon)
             # Reinitialise l'environnement
             state = game.reset()
+            
+            action_logs = np.zeros(args.num_action)
             # Execute K steps 
             for step in range(max_steps):
                 # Selectionne une action 
                 action = controller.select_action(state)
+                #update the action log
+                action_logs[action] += 1
                 # Echantillonne l'état suivant et la récompense
                 next_state, reward, is_done = game.step(action)
                 # Mets à jour la fonction de valeur Q
@@ -171,16 +176,25 @@ def learn(n_episodes = 1000, max_steps=5000):
                 
                 courbe_1.append(game.sliding_average( initial_score_val ,courbe_1[episode-1],episode,sliding_window))
                 episode_1.append(episode)
+            # Save the logs
+            logs[episode] = action_logs
             # Mets à jour la valeur du epsilon
             controller.update_exploration_rate(nb_episode = episode)
             # Sauvegarde les données
             controller.save()
+
+        # Visualisation des données
+
+        # save the logs
+        np.savetxt(f"logs/logs_{args.train_id}.csv", logs, delimiter=",")
+
         
         print(courbe_1)
         print(episode_1)
         game.plot_score(courbe_1, episode_1)
     except KeyboardInterrupt:
         controller.save()
+        np.savetxt(f"logs/logs_{args.train_id}.csv", logs, delimiter=",")
         sys.exit(0)
 
 

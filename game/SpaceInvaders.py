@@ -126,7 +126,7 @@ class SpaceInvaders():
             X_abs.append(self.get_player_X())
             number += 1
 
-        return ecart_X[0],self.direction(),ecart_Y[0],bullet_state #,X_abs[0]
+        return ecart_X[0],self.direction(),ecart_Y[0] #,bullet_state #,X_abs[0]
         #return int(math.sqrt((self.get_indavers_Y()[0]-self.get_player_Y())**2 + (self.get_indavers_X()[0]-self.get_player_X())**2))
 
         #return "L'état n'est pas implémenté (SpaceInvaders.get_state)"

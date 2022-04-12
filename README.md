@@ -39,3 +39,5 @@ SDI stands for "Sitting Dog Issue" : symbolizing the memory handling issue.
 Solving SDI can be done by increasing the memory size, or by increasing the number of steps during the learning.
 
 "J'eusse obtenu de ma réflection la suivante :"
+
+py run_game.py --train_id 20 --n_steps 5000 --n_episodes 20000 ===> ecart_X[0],self.direction(),ecart_Y[0]

@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from tabulate import tabulate
 #create the qagent and solve the problem
 class QAgent():
@@ -6,7 +7,7 @@ class QAgent():
     Cette classe d'agent représente un agent utilisant la méthode du Q-learning 
     pour mettre à jour sa politique d'action.
     """
-    def __init__(self, num_actions = 4, num_state = 1600 ,alpha=0.1, gamma=0.9, epsilon=0.1, train_id = 1):
+    def __init__(self, num_actions = 4, num_state = 1600 ,alpha=0.1, gamma=0.9, epsilon=0.1, train_id = 1, episodes = 5000):
         """
         :param num_actions: nombre d'actions possibles
         :param alpha: paramètre d'apprentissage
@@ -20,12 +21,13 @@ class QAgent():
         self.epsilon = epsilon
         self.numstates = num_state
         self.train_id = train_id
+        self.episodes = episodes
         print(f"QAgent : {self.train_id}")
         #load the Q matrix from the file if the file exists
         try:
             self.Q = np.load(f"qagent_{self.train_id}.npy")
         except:
-            self.Q = np.zeros((64,2,20,2,self.num_actions))
+            self.Q = np.zeros((64,2,20,self.num_actions))
             print("Q matrix not found, creating a new one")
             #self.random_fill()
         self.reset()
@@ -44,7 +46,7 @@ class QAgent():
         """
         Réinitialise l'état de l'agent.
         """
-        self.state = (None, None,None,None)
+        self.state = (None, None,None)
         self.action = None
         self.reward = None
 
@@ -109,6 +111,8 @@ class QAgent():
     #return sigmoide fonciton of episode
     def sigmoid(self, x):
         return (1/(1+np.exp((-x+1800)/600)))
+    def cosinusoid(self, x):
+        return self.max_epsilon*math.cos(math.pi*x/(2*self.episodes))
         
     def update(self, state, action, reward, next_state):
         """
@@ -137,8 +141,8 @@ class QAgent():
         L'exploration diminue plus le score est élevé.
         """
 
-        self.epsilon = max(0.05, self.max_epsilon - self.sigmoid(nb_episode))
-        #self.epsilon = max(0.05, self.epsilon - 0.005)
+        #self.epsilon = max(0.05, self.max_epsilon - self.sigmoid(nb_episode))
+        self.epsilon = max(0.05, self.cosinusoid(nb_episode))
         #print(f"Epsilon : {self.epsilon}")
 
     def save(self):
