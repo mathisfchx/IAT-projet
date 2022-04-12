@@ -189,9 +189,11 @@ def learn(n_episodes = 1000, max_steps=5000):
         np.savetxt(f"logs/logs_{args.train_id}.csv", logs, delimiter=",")
 
         
-        print(courbe_1)
-        print(episode_1)
-        game.plot_score(courbe_1, episode_1)
+        #print(courbe_1)
+        #print(episode_1)
+        plt.savefig('foo.png')
+        #game.plot_score(courbe_1, episode_1)
+        game.save_plot(courbe_1, episode_1, args.train_id)
     except KeyboardInterrupt:
         controller.save()
         np.savetxt(f"logs/logs_{args.train_id}.csv", logs, delimiter=",")

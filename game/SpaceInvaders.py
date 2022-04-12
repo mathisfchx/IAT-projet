@@ -149,7 +149,11 @@ class SpaceInvaders():
         plt.ylabel('Score')
         plt.show()
 
-
+    def save_plot(self, score_avg, episode, train_id):
+        plt.plot(episode, score_avg, 'b')
+        plt.xlabel('Episode')
+        plt.ylabel('Score')
+        plt.savefig(f"logs/train_{train_id}.png")
     def reset(self):
         """Reset the game at the initial state.
         """
