@@ -51,7 +51,13 @@ class Genetic:
                     self.swap_weights(array, i_1, j_1, i_2, j_2)
                     number += 1
 
-
+    #Copy all weight from one genetic to a second one 
+    def copy(self, genetic):
+        for layer in self.network.layers: 
+                array = layer.get_weights()
+                for layer_2 in genetic.network.layers: 
+                    if layer_2.name == layer.name : 
+                        layer_2.set_weights(array)
 
 
     #Change one neural network weight
