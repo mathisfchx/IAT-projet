@@ -170,7 +170,7 @@ class SpaceInvaders():
         self.invader_Xchange = []
         self.invader_Ychange = []
         for _ in range(SpaceInvaders.NO_INVADERS):
-            self.invaderImage.append(pygame.image.load(getURL('data/con.png')))
+            self.invaderImage.append(pygame.image.load(getURL('data/zemzem.png')))
             self.invader_X.append(random.randint(64, 737))
             self.invader_Y.append(random.randint(30, 180))
             self.invader_Xchange.append(1.2)
@@ -273,6 +273,9 @@ class SpaceInvaders():
     def render(self):
         self.show_score(self.scoreX, self.scoreY)
         pygame.display.update()
+    
+    def get_score(self):
+        return self.score_val
 
     def move_player(self, x, y):
         self.screen.blit(self.playerImage, (x - 16, y + 10))
