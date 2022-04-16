@@ -87,7 +87,7 @@ def copy_weight_and_mutate (Genetics, Best_Result) :
                     #print("On copie le génétique", k, "et on mutate")
                     #print(index_already_done, "\n \n")
                     compt += 1
-                if compt == 3 :
+                if compt == 10 :
                     break
         
 
@@ -123,7 +123,7 @@ def main(number_of_genetic , number_of_thread):
         print("On trie")
         Best_Result = sort_array(Returns)
         #keep 3 best results
-        Best_Result = Best_Result[-3:]
+        Best_Result = Best_Result[-10:]
         print(Returns)
         print(Best_Result)
         for Space in SpaceI : 
@@ -135,6 +135,6 @@ def main(number_of_genetic , number_of_thread):
 
 
 if __name__ == "__main__":
-    main(20,10)
+    main(1,50)
     
     
