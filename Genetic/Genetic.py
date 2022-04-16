@@ -94,7 +94,7 @@ def main():
     network.print_network()
     #create table numpy 4x4
     input = np.random.randint(0,2,(1,input_size))
-    #print(input)
+    print(input)
     result = network.run(input)
     #normalize array 
     #print(result)   

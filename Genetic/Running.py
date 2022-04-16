@@ -1,52 +1,88 @@
 import sys
-sys.path.append('../game')
-import SpaceInvaders as SpaceInvader
+sys.path.append('../')
+from game.SpaceInvaders import SpaceInvaders as SpaceInvader
 import Genetic 
 import random
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import threading 
+from threading import Thread
+import math
+
+class ThreadWithReturnValue(Thread):
+    def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs={}, Verbose=None):
+        Thread.__init__(self, group, target, name, args, kwargs)
+        self._return = None
+    def run(self):
+        print(type(self._target))
+        if self._target is not None:
+            self._return = self._target(*self._args,
+                                                **self._kwargs)
+    def join(self, *args):
+        Thread.join(self, *args)
+        return self._return
 
 
 #Create X number of Genetic 
 def Initialise_Genetic(number) : 
-    Genetic = []
+    genetics = []
     for i in range(number) : 
-        Genetic.append(Genetic.Genetic())
-    return Genetic
+        genetics.append(Genetic.Genetic(3,5,4,3))
+    return genetics
 #Create X number of SpaceInvader
 def Initialise_SpaceInvader(number) :
-    SpaceInvader = []
+    SpaceI = []
     for i in range(number) : 
-        SpaceInvader.append(SpaceInvader.SpaceInvader())
-    return SpaceInvader
+        SpaceI_temp = SpaceInvader()
+        SpaceI.append(SpaceI_temp)
+    return SpaceI
 
 #Create thread function 
 def thread_function(Genetic, SpaceInvader):
     is_done = False 
-    while is_done == False :
-        state,reward,is_done = SpaceInvader.get_state()
-        action = Genetic.run(state)
-        SpaceInvader.step(action)
-        time.sleep(0.1)
-    return Genetic , SpaceInvader.get_score()
+    compt = 0 
+    while compt < 5000 or is_done :
+        tab = [[]]
+        state = SpaceInvader.get_state()
+        for element in state :
+            tab[0].append(element)
+
+        action = Genetic.run(tab)
+        max = -math.inf
+        for i in range(len(action[0])) :
+            if action[0][i] > max :
+                max = action[0][i]
+                index = i
+        state , reward , is_done = SpaceInvader.step(index)
+        compt += 1
+
+        #print(index)
+    #print("C'est fait !", Genetic.get_network().summary())
+    #print("SpaceInvader : ", SpaceInvader.get_score())
+    return SpaceInvader.get_score()
         
 
 def main():
-    Genetics = Initialise_Genetic(10)
-    SpaceInvaders = Initialise_SpaceInvader(10)
-    for i in range(10) :
-        thread = threading.Thread(target=thread_function, args=(Genetics[i], SpaceInvaders[i]))
-        thread.start()
-
+    number_of_thread = 10
+    Genetics = Initialise_Genetic(number_of_thread)
+    SpaceI = Initialise_SpaceInvader(number_of_thread)
+    print("OK")
+    threads = []
+    for i in range(number_of_thread) :
+        threads.append(ThreadWithReturnValue(target=thread_function, args=(Genetics[i], SpaceI[i])))
+        print(i)
+        threads[i].start()
+        print(threads)
     Returns = []
-    for i in range(10) : 
-        Returns.append(thread.join())
-        
+    for i in range(number_of_thread) : 
+        Returns.append((threads[i].join(),i))
+
+
+
+    print("On print les retours")    
     print(Returns)
-        
-    
+
 
 if __name__ == "__main__":
     main()
