@@ -1,6 +1,7 @@
 import tensorflow as tf
 import random
 import numpy as np
+import os
 
 
 #import pytorch as py
@@ -50,6 +51,16 @@ class Genetic:
             if i_1 != i_2 and j_1 != j_2:
                     self.swap_weights(array, i_1, j_1, i_2, j_2)
                     number += 1
+        return array
+    
+    # add to a weight (pick in function of mutation rate) a random number between -0.5 and 0.5
+    def change_array_2(self,array,mutation_rate):
+        for i in range(len(array)):
+            for j in range(len(array[0])):
+                if random.random() < mutation_rate:
+                    change = random.uniform(-0.5,0.5)
+                    array[i][j] += change
+        return array
 
     #Copy all weight from one genetic to a second one 
     def copy(self, genetic):
@@ -60,12 +71,14 @@ class Genetic:
                         layer_2.set_weights(array)
 
 
-    #Change one neural network weight
-    def mutate(self, mutation_number):
+                
+    #Change one neural netork weight in function of mutation_ratio 
+    def mutate_network(self, mutation_number=10 , mutation_ratio=0.1):
         for layer in self.network.layers:
             if "hidden" in layer.name : 
                 array = layer.get_weights()
-                self.change_array(array, mutation_number)
+                #array = self.change_array(array, mutation_number)
+                array = self.change_array_2(array, mutation_ratio)
                 layer.set_weights(array)
 
     def get_network(self):
@@ -81,8 +94,17 @@ class Genetic:
             pass
 
     #Save neural network on file 
-    def save_network(self,network):
-        network.save('network.h5')
+    def save_network(self,folder_name,file_name):
+        try : 
+            os.mkdir(folder_name)
+            print("Mkdir ok")
+        except:
+            pass
+        self.network.save_weights(file_name)
+    
+    #Load network
+    def load_network(self,file_name):
+        self.network.load_weights(file_name)
 
     def run(self , input) : 
         return self.network.predict(input)
@@ -96,7 +118,7 @@ def main():
     network = Genetic(input_size, hidden_size, output_size, num_layers)
     #print(network.get_network().summary())
     print("\n\n\n Mutation \n\n\n")
-    network.mutate(5)
+    network.mutate_network(1,0.1)
     network.print_network()
     #create table numpy 4x4
     input = np.random.randint(0,2,(1,input_size))
