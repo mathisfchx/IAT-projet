@@ -17,7 +17,7 @@ class ThreadWithReturnValue(Thread):
         Thread.__init__(self, group, target, name, args, kwargs)
         self._return = None
     def run(self):
-        print(type(self._target))
+        #print(type(self._target))
         if self._target is not None:
             self._return = self._target(*self._args,
                                                 **self._kwargs)
@@ -44,8 +44,9 @@ def Initialise_SpaceInvader(number) :
 def thread_function(Genetic, SpaceInvader , steps):
     is_done = False 
     compt = 0 
-    while (compt < steps or is_done ):
-        tab = [[]]
+    tab = [[]]
+    while (compt < steps+steps*SpaceInvader.get_score() or is_done ):
+        tab[0].clear()
         state = SpaceInvader.get_state()
         for element in state :
             tab[0].append(element)
@@ -78,7 +79,7 @@ def save_all(Genetics) :
 
 
  #Crossover between two genetics 
- def crossover(Genetic1, Genetic2) :
+def crossover(Genetic1, Genetic2) :
      Weight1 = Genetic1.get_network().get_weights()
      Weight2 = Genetic2.get_network().get_weights()
      new_weight1 = Weight1
@@ -97,7 +98,7 @@ def find_not_in_array(k, array) :
      
 
 #Copy Weight of the best result in the Genetic
-def copy_weight_and_mutate (Genetics, Best_Result , number_of_copy=10 , rate_between_mutate_and_crossover) :
+def copy_weight_and_mutate (Genetics, Best_Result , number_of_copy=10 , rate_between_mutate_and_crossover = 0.1) :
     index = []
     index_already_done = []
     for tup in Best_Result :
@@ -108,11 +109,11 @@ def copy_weight_and_mutate (Genetics, Best_Result , number_of_copy=10 , rate_bet
         for k in range(len(Genetics)) : 
             if k not in index_already_done : 
                 if i != k :
-                    if random.uniform(0,1) < rate_between_mutate_and_crossover : 
+                    if random.uniform(0,1) > rate_between_mutate_and_crossover : 
                         Genetics[i].copy(Genetics[k])
                         Genetics[k].mutate_network(10,0.05)
                         index_already_done.append(k)
-                        #print("On copie le génétique", k, "et on mutate")
+                        print("On copie le génétique", k, "et on mutate")
                         #print(index_already_done, "\n \n")
                         compt += 1
                     else : 
@@ -124,19 +125,21 @@ def copy_weight_and_mutate (Genetics, Best_Result , number_of_copy=10 , rate_bet
                                 break
                         if second_index != -1 :
                             new_index = i 
-                            while new_index ==i :
-                                new_index = random.randint(0,len(index)-1)
+                            if len(index) != 1 :
+                                while new_index ==i :
+                                    print("new_index : ", new_index)
+                                    new_index = random.randint(0,len(index)-1)
                                 
                             
-                            new_wheight1 , new_wheight_2 = crossover(Genetics[i],Genetics[new_index])
-                            Genetics[k].get_network().set_weights(new_wheight1)
-                            Genetics[second_index].get_network().set_weights(new_wheight_2)
+                                new_wheight1 , new_wheight_2 = crossover(Genetics[i],Genetics[new_index])
+                                Genetics[k].get_network().set_weights(new_wheight1)
+                                Genetics[second_index].get_network().set_weights(new_wheight_2)
                             
-                            index_already_done.append(k)
-                            index_already_done.append(second_index)
-                            #print("On copie le génétique", k, "et on crossover")
-                            #print(index_already_done, "\n \n")
-                            compt += 2
+                                index_already_done.append(k)
+                                index_already_done.append(second_index)
+                                print("On copie le génétique", k, "et on crossover")
+                                #print(index_already_done, "\n \n")
+                                compt += 2
                             
                 if compt == number_of_copy :
                     break
@@ -172,6 +175,8 @@ def find_best_results(Returns, number_of_genetic) :
 
 def main(number_of_genetic , number_of_thread,steps , mode , increased_steps):
     for i in range(number_of_genetic) :
+        print("Genetic : ", i)
+        print("steps : ", steps+i*increased_steps)
         if mode == 1 : 
             Genetics = Initialise_Genetic(number_of_thread)
             print("On est bien dans if ")
@@ -182,8 +187,6 @@ def main(number_of_genetic , number_of_thread,steps , mode , increased_steps):
                 folder = "logs_network/network_save_"+str(i)
                 file_name = folder+"/checkpoint.h5"
                 Genetics[i].load_network(file_name)
-
-        print(Genetics[0].get_network().get_weights())
         SpaceI = Initialise_SpaceInvader(number_of_thread)
         print("OK")
         threads = []
@@ -192,34 +195,45 @@ def main(number_of_genetic , number_of_thread,steps , mode , increased_steps):
             threads[j].start()
         Returns = []
         print("\n \n")
+        time.sleep(300)
         h = hpy()
         print(h.heap())
         for j in range(number_of_thread) : 
             Returns.append((threads[j].join(),j))
+            print("join")
 
 
         print("On print les retours")    
-        print(Returns)
         print("On trie")
         Best_Result = sort_array(Returns)
         #keep 3 best results
         Best_Result = Best_Result[-int(number_of_thread/10):]
-        print(Returns)
         print(Best_Result)
         for Space in SpaceI : 
             Space.reset()
         #print(Genetics)
             
-        copy_weight_and_mutate(Genetics, Best_Result,0.2)
+        copy_weight_and_mutate(Genetics, Best_Result,int(number_of_thread/10),0)
         save_all(Genetics)
         print("On print les genetics")
         mode = 0
 
 
+# play a game with one IA 
+def play_game(Genetic, SpaceInvader, steps) :
+    SpaceInvader.reset()
+    is_done = False
+    while is_done == False : 
+        state = SpaceInvader.get_state()
+        action = Genetic.predict(state)
+        next_state, _, is_done = SpaceInvader.step(action)
+        state = next_state
+        
+        
 if __name__ == "__main__":
     number_of_genetic = 100
-    number_of_thread = 50
-    steps = 2000
+    number_of_thread = 20
+    steps = 200
     mode = 0
     increased_steps = 50
     main(number_of_genetic,number_of_thread,steps,mode,increased_steps)
