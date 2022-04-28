@@ -24,10 +24,11 @@ class Genetic:
                 tf.keras.layers.Dense(output_size, activation="linear", name ="output_layer") 
             ])
         self.init_network(self.network,input_size)
+        self.score = 0
     #initialise neural network using tf.keras 
     def init_network(self,network,input_size):
         #print("\n\n\n Init \n\n\n")
-        input = tf.random.normal([1,input_size])
+        input = tf.random.uniform([1,input_size])
         #print(input)
         output = network(input)
 
@@ -55,11 +56,17 @@ class Genetic:
     
     # add to a weight (pick in function of mutation rate) a random number between -0.5 and 0.5
     def change_array_2(self,array,mutation_rate):
-        for i in range(len(array)):
-            for j in range(len(array[0])):
-                if random.random() < mutation_rate:
-                    change = random.uniform(-0.5,0.5)
-                    array[i][j] += change
+        if len(array) != 0 and len(array[0]) != 0  :
+            for i in range(len(array)):
+                for j in range(len(array[0])):
+                    if random.random() < mutation_rate:
+                        change = random.uniform(-0.5,0.5)
+                        try : 
+                            array[i][j] += change
+                        except:
+                            array[0][j] += change
+        else : 
+            print("error")
         return array
 
     #Copy all weight from one genetic to a second one 
@@ -75,10 +82,13 @@ class Genetic:
     #Change one neural netork weight in function of mutation_ratio 
     def mutate_network(self, mutation_number=10 , mutation_ratio=0.1):
         for layer in self.network.layers:
-            if "hidden" in layer.name : 
                 array = layer.get_weights()
+                #print("mutate network array 1 : ", array , layer.name)
+                #print("\n \n \n") 
                 #array = self.change_array(array, mutation_number)
                 array = self.change_array_2(array, mutation_ratio)
+                #print("mutate network array 2 : ", array)
+                #print("\n \n \n")
                 layer.set_weights(array)
 
     def get_network(self):
@@ -107,11 +117,23 @@ class Genetic:
         self.network.load_weights(file_name)
 
     def run(self , input) : 
-        return self.network.predict(input)
+        temp = np.asarray(input)
+        tensor = tf.convert_to_tensor(temp)
+        return self.network(tensor)
+    #Change score of genetic
+    def set_score(self,score):
+        self.score = score
+    #get score of genetic
+    def get_score(self):
+        return self.score
+    #reset score of genetic
+    def reset_score(self):
+        self.score = 0
+    
 
 
 def main():
-    input_size = 4
+    input_size = 6
     hidden_size = 5
     output_size = 4
     num_layers = 3

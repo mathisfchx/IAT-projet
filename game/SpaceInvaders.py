@@ -125,8 +125,8 @@ class SpaceInvaders():
             ecart_X_bullet.append(self.get_diff_X(self.get_bullet_X(), self.get_player_X()))
             X_abs.append(self.get_player_X())
             number += 1
-
-        return ecart_X[0],self.direction(),ecart_Y[0] #,bullet_state #,X_abs[0]
+        return self.get_indavers_X()[0] , self.get_indavers_Y()[0],self.get_player_X() , self.get_player_Y() , bullet_state , self.direction()
+        #return ecart_X[0],self.direction(),ecart_Y[0] ,bullet_state ,X_abs[0]
         #return int(math.sqrt((self.get_indavers_Y()[0]-self.get_player_Y())**2 + (self.get_indavers_X()[0]-self.get_player_X())**2))
 
         #return "L'état n'est pas implémenté (SpaceInvaders.get_state)"
@@ -154,6 +154,14 @@ class SpaceInvaders():
         plt.xlabel('Episode')
         plt.ylabel('Score')
         plt.savefig(f"logs/train_{train_id}.png")
+
+
+    def save_plot_Genetic(number_genetic ,  score_avg , name = " ") : 
+        array = range(number_genetic)
+        plt.plot(array, score_avg, 'b')
+        plt.xlabel('Generation')
+        plt.ylabel('Score_Moyen')
+        plt.savefig(f"log_plot/plot.png")
     def reset(self):
         """Reset the game at the initial state.
         """
