@@ -44,7 +44,8 @@ class SpaceInvaders():
             try:
                 self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), flags=pygame.HIDDEN)
             except:
-                self.screen = pygame.display.set_mode((0, 0), flags=pygame.HIDDEN)
+                os.environ['SDL_VIDEODRIVER'] = 'dummy'
+                self.screen = pygame.display.set_mode((0, 0), flags=pygame.NOFRAME)
 
         # caption and icon
         pygame.display.set_caption("Welcome to Space Invaders Game by:- styles")

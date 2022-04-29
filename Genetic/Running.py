@@ -262,8 +262,8 @@ def play_game(Genetic, SpaceInvader, steps) :
         
         
 if __name__ == "__main__":
-    number_of_genetic = 200
-    number_of_thread = 80
+    number_of_genetic = 5
+    number_of_thread = 10
     steps = 400
     mode = 1
     increased_steps = 0
