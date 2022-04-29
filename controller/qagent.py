@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from tabulate import tabulate
+#from tabulate import tabulate
 #create the qagent and solve the problem
 class QAgent():
     """ 
