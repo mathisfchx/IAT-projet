@@ -4,6 +4,7 @@ from game.SpaceInvaders import SpaceInvaders
 from controller.keyboard import KeyboardController
 from controller.random_agent import RandomAgent
 from controller.qagent import QAgent
+import time
 #import for plot 
 import matplotlib.pyplot as plt
 import sys
@@ -186,17 +187,16 @@ def learn(n_episodes = 1000, max_steps=5000):
         # Visualisation des données
 
         # save the logs
-        np.savetxt(f"logs/logs_{args.train_id}.csv", logs, delimiter=",")
+        np.savetxt(f"logs/logs_{args.train_id}_{time.time()}.csv", logs, delimiter=",")
 
-        
-        #print(courbe_1)
-        #print(episode_1)
-        plt.savefig('foo.png')
+
         #game.plot_score(courbe_1, episode_1)
         game.save_plot(courbe_1, episode_1, args.train_id)
     except KeyboardInterrupt:
         controller.save()
-        np.savetxt(f"logs/logs_{args.train_id}.csv", logs, delimiter=",")
+        #get the current time in seconds
+        np.savetxt(f"logs/logs_{args.train_id}_{time.time()}.csv", logs, delimiter=",")
+        game.save_plot(courbe_1, episode_1, args.train_id)
         sys.exit(0)
 
 

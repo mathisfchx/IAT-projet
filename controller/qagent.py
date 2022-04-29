@@ -25,7 +25,7 @@ class QAgent():
         print(f"QAgent : {self.train_id}")
         #load the Q matrix from the file if the file exists
         try:
-            self.Q = np.load(f"qagent_{self.train_id}.npy")
+            self.Q = np.load(f"qweight/qagent_{self.train_id}.npy")
         except:
             self.Q = np.zeros((64,2,20,self.num_actions))
             print("Q matrix not found, creating a new one")
@@ -81,7 +81,6 @@ class QAgent():
         # Execute N episodes 
         for episode in range(n_episodes):
             # Reinitialise l'environnement
-            state = env.reset_using_existing_maze()
             # Execute K steps 
             for step in range(max_steps):
                 # Selectionne une action 
@@ -90,7 +89,7 @@ class QAgent():
                 next_state, reward, terminal = env.step(action)
                 # Mets à jour la fonction de valeur Q
                 self.update(state, action, reward, next_state)
-                
+
                 if terminal:
                     n_steps[episode] = step + 1  
                     break
@@ -99,20 +98,12 @@ class QAgent():
             # Mets à jour la valeur du epsilon
             self.update_exploration_rate()
 
-            # Sauvegarde et affiche les données d'apprentissage
-            """if n_episodes >= 0:
-                state = env.reset_using_existing_maze()
-                print("\r#> Ep. {}/{} Value {}".format(episode, n_episodes, self.Q[state][self.select_greedy_action(state)]), end =" ")
-                self.save_log(env, episode)
-
-        self.values.to_csv('partie_3/visualisation/logV.csv')
-        self.qvalues.to_csv('partie_3/visualisation/logQ.csv')"""
 
     #return sigmoide fonciton of episode
     def sigmoid(self, x):
         return (1/(1+np.exp((-x+1800)/600)))
     def cosinusoid(self, x):
-        return self.max_epsilon*math.cos(math.pi*x/(2*self.episodes))
+        return self.max_epsilon*math.cos(math.pi*x/(2*self.episodes/2))
         
     def update(self, state, action, reward, next_state):
         """
@@ -150,5 +141,5 @@ class QAgent():
         Sauvegarde l'état de l'agent dans un fichier.
         :param filename: nom du fichier
         """
-        np.save(f"qagent_{self.train_id}.npy", self.Q)
+        np.save(f"qweight/qagent_{self.train_id}.npy", self.Q)
         print("Sauvegarde effectuée")
