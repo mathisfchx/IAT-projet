@@ -237,7 +237,7 @@ def main(number_of_genetic , number_of_thread,steps , mode , increased_steps,pas
         for k in range(len(Genetics)) : 
             Genetics[i].reset_score()
         #print(Genetics)
-        mutation_rate = sigmoid(i,number_of_genetic)
+        mutation_rate = max(sigmoid(i,number_of_genetic)-0.4,0.05)
         copy_weight_and_mutate(Genetics, Best_Result,int(10),0,mutation_rate)
         save_all(Genetics)
         print("On print les genetics")
@@ -262,9 +262,9 @@ def play_game(Genetic, SpaceInvader, steps) :
         
         
 if __name__ == "__main__":
-    number_of_genetic = 500
+    number_of_genetic = 200
     number_of_thread = 80
-    steps = 500
+    steps = 400
     mode = 1
     increased_steps = 0
     pas = int(steps*0.9)
