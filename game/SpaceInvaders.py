@@ -41,7 +41,11 @@ class SpaceInvaders():
         if self.display:
             self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         else:
-            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), flags=pygame.HIDDEN)
+            try:
+                self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), flags=pygame.HIDDEN)
+            except:
+                os.environ['SDL_VIDEODRIVER'] = 'dummy'
+                self.screen = pygame.display.set_mode((0, 0), flags=pygame.NOFRAME)
 
         # caption and icon
         pygame.display.set_caption("Welcome to Space Invaders Game by:- styles")
@@ -125,8 +129,8 @@ class SpaceInvaders():
             ecart_X_bullet.append(self.get_diff_X(self.get_bullet_X(), self.get_player_X()))
             X_abs.append(self.get_player_X())
             number += 1
-        return self.get_indavers_X()[0] , self.get_indavers_Y()[0],self.get_player_X() , self.get_player_Y() , bullet_state , self.direction()
-        #return ecart_X[0],self.direction(),ecart_Y[0] ,bullet_state ,X_abs[0]
+        #return self.get_indavers_X()[0] , self.get_indavers_Y()[0],self.get_player_X() , self.get_player_Y() , bullet_state , self.direction()
+        return ecart_X[0],self.direction(),ecart_Y[0]
         #return int(math.sqrt((self.get_indavers_Y()[0]-self.get_player_Y())**2 + (self.get_indavers_X()[0]-self.get_player_X())**2))
 
         #return "L'état n'est pas implémenté (SpaceInvaders.get_state)"
@@ -153,7 +157,7 @@ class SpaceInvaders():
         plt.plot(episode, score_avg, 'b')
         plt.xlabel('Episode')
         plt.ylabel('Score')
-        plt.savefig(f"logs/train_{train_id}.png")
+        plt.savefig(f"logs/train_{train_id}_{time.time()}.png")
 
 
     def save_plot_Genetic(number_genetic ,  score_avg , name = " ") : 
