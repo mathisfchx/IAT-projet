@@ -1,43 +1,39 @@
 # IAT-projet
-To run the project, you need to install the dependencies.
+Pour lancer le projet, il faut tout d'abord installer les requirements
 
 ```bash
 pip install -r requirements.txt
 ```
 
-You may run the project with the following command:
+## QLearning
 
-```bash
-python3 run_game.py --train_id <train_id> 
-```
-
-You can also define optional parameters:
-
-```bash
-python3 run_game.py --train_id <train_id> --epsilon <epsilon> --alpha <alpha> --gamma <gamma>
-```
-
-Finally, you can test the project with the following command:
+Pour lancer des parties avec une IA donnée, vous pouvez lancer la commande suivante en utilisant l'ID d'IA souhaitée.
 
 ```bash
 python3 run_game.py --train_id <train_id> --play
 ```
 
-By adding the play parameter, the game will be played with the trained agent, epsillon will be set to 0.0
+Vous pouvez si vous le souhaitez passer des arguments pour lancer des phases d'apprentissage.
 
-The train_id is used to save the trained agent in the folder "qagent_<train_id>.npy".
+```bash
+python3 run_game.py --train_id <train_id> --epsilon <epsilon> --alpha <alpha> --gamma <gamma>
+```
 
-Train_id :
-1 : Q-learning, state ∆x (px)
-2 : Q-learning, state ∆x (px)
-3 : Q-learning, state ∆x (px)
-4 : Q-learning, state ∆x (px)
-5 : Q-learning, state ∆x (px/(HITBOX/2))
+Par défault, quand vous lancez avec ```--play``` le paramètre epsilon est initialisé à 0, vous etes donc en exploitation à 100%.
+
+## Algorithme génétique
+
+Pour lancer des parties avec une IA donnée, vous devez tout d'abord vous rendre dans le dossier ```/Genetic``` avec
+
+```bash
+cd /Genetic
+```
+Puis pouvez lancer la commande suivante,
+
+```bash
+./run_game.py
+```
+
+Vous serez invités à rentrer le numéro de Réseau de neurone que voius voulez utiliser.
 
 
-SDI stands for "Sitting Dog Issue" : symbolizing the memory handling issue. 
-Solving SDI can be done by increasing the memory size, or by increasing the number of steps during the learning.
-
-"J'eusse obtenu de ma réflection la suivante :"
-
-py run_game.py --train_id 20 --n_steps 5000 --n_episodes 20000 ===> ecart_X[0],self.direction(),ecart_Y[0]
