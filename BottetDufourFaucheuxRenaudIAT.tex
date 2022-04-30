@@ -1,0 +1,131 @@
+\documentclass[12pt]{article}
+%=============== En−Tete ===============
+%−−− Insertion de paquetages (optionnel) −−−
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+ 
+\usepackage[francais]{babel}
+
+\usepackage{a4} % pour la taille
+\usepackage{epsfig} % pour gerer les images
+\usepackage{graphicx}
+\usepackage{amsmath, amsthm} % tr`es bon mode math´ematique
+\usepackage{amsfonts,amssymb}% permet la definition des ensembles
+\usepackage{float} % pour le placement des figure
+\usepackage{url} % pour une gestion efficace des url
+\usepackage{abstract}
+\addto\captionsfrench{\renewcommand{\abstractname}{}}
+\addto\captionsfrench{\renewcommand{\absnamepos}{empty}}
+
+%−−− Pour le titre −−−
+\title{Rapport technique, Projet final d'IAT \\ \fontsize{13pt}{13pt}\selectfont "IA playing Z Invaders"}
+\author{Nathan BOTTET, Lucas DUFOUR, Mathis FAUCHEUX, Pierre RENAUD}
+%=============== Corps ===============
+\begin{document}
+
+\begin{titlepage}
+\thispagestyle{empty}
+\setcounter{page}{0}
+\maketitle % ´ecrit le titre
+
+\begin{abstract}
+\textit{Ce rapport technique a pour objectif de présenter les réflexions et le cheminement ayant abouti à la production du projet final d'IAT de notre groupe. Vous trouverez à la suite de ce document des annexes contenant des graphiques utiles à la compréhension générale du projet. }
+\end{abstract}
+
+\end{titlepage}
+\begin{page}
+
+\section{Présentation du projet}
+Le problème que l’on souhaite résoudre est le jeu \textbf{Space Invaders}, ici remastérisé en Z Invaders. Notre agent est un vaisseau pour qui le but est de survivre en détruisant le plus de Z possible. Les \textbf{quatre actions possibles} pour notre agent sont les suivantes :
+(0 : aller à gauche,
+1 : aller à droite,
+2 : tirer,
+3 : ne rien faire)
+
+Chaque Z détruit rapporte un point, et la partie continue tant qu'un Z n'a pas touché notre agent (le Z se déplace latéralement puis verticalement en direction de notre agent).
+
+\section{QLearning}
+Comme annoncé dans le sujet, notre but original est de réutiliser un des algorithmes d’\textbf{apprentissage par renforcement}
+vu lors des précédentes séances afin d’obtenir le plus haut score possible au jeu Space Invaders. Nous avons donc choisis de débuter notre résolution en utilisant le \textbf{Q Learning}.
+
+\subsection{Formalisation}
+Tout d'abord il est nécessaire de formaliser notre problème en définissant un \textbf{nombre fini d'états}. Ces états seront caractérisés selon les variables suivantes :
+\begin{itemize}
+\item distance en x par rapport au Z (discretisé en $(800px/25) *2 = 64$ valeurs)
+\item direction latérale du Z (+1 ou -1)
+\item distance en y entre l'agent et le Z (discrétisé en 16 valeurs)
+\end{itemize}
+
+Ces états vont ainsi être pris en compte dans la \textbf{prise de décision de l'action la plus adéquate à effectuer} : c'est la \textbf{politique}.
+\subsection{Algorithme}
+L'algorithme de QLearning cherche à apprendre une \textbf{politique qui maximise la récompense totale}. Ici la \textbf{récompense} est représentée par le \textbf{point gagné} en touchant le Z, et donc par extension, la \textbf{durée totale de la partie} car on sait que la partie se termine quand l'agent à été touché.
+
+Tout d'abord, l'algorithme peut s’exécuter soit en \textbf{mode exploration} soit en \textbf{mode exploitation}. En effet, quand une première simulation se lance, l'algorithme n'a pas de données pour faire son choix d'action, il va donc "essayer" des actions au "hasard" pour entamer la construction de sa \textbf{matrice Q} (fonction d'action-valeur). C'est cette matrice Q qui sera exploitée ensuite par la politique pour déterminer les actions à suivre. Au fur et à mesure de ses choix, Q sera mise à jour et étoffée pour devenir la plus précise possible (=remporter le plus de récompenses).
+
+Nous avons utilisé ainsi utilisé la politique de l'algorithme de QLearning vu précédemment en TP :
+\begin{equation}
+	Q[etat][action]^{n+1}=(1-\alpha)*Q[etat][action]^{n}+\alpha(reward+\gamma*max(Q[prochain\_etat]))
+\end{equation}
+
+\subsection{Apprentissage et Hyperparamètrage}
+Les \textbf{hyperparamètres} (HP) sont des variables initialement déclarées (on leur assigne une valeur) qui vont grandement influencer l'apprentissage. Voici une liste non exhaustive des HP les plus déterminants (=l'échantillon que l'on a sélectionné) :
+\begin{itemize}
+\item Learning rate ($\alpha$ : poids donné à l'apprentissage)
+\item Parametre d'exploration ($\epsilon_{ini}$ : fréquence du mode exploration, décroit selon une sigmoide au fur et à mesure des episodes)
+\item Parametre de récompense future ($\gamma$ : importance donnée aux récompenses)
+\item Episodes (nombre de parties effectuées)
+\item Steps (temps d’une partie)
+\end{itemize}
+
+Pour optimiser au mieux notre apprentissage, il est nécessaire de chercher les \textbf{valeurs de ces HP} qui vont donner \textbf{le meilleur apprentissage}. Tout d'abord, pour témoigner de l’apprentissage, on peut suivre le nombre de points avant de perdre : en effet, plus l'IA joue bien et apprends, plus elle doit marquer de point avant de perdre.
+On va donc lancer plusieurs simulation (SM) en faisant varier un HP à la fois sur chacune de nos SM. Nous sélectionnerons les valeurs d'HP qui donnent le plus haut score à la fin des épisodes d'apprentissage indiqués. Dans un soucis de place et de lisibilité nous avons fait le choix de ne pas présenter toutes les courbes d'optimisation d'HP ici (La Figure 1 est un tableau représentant un échantillon des différents essais). Vous trouverez en Figure 2 un exemple sur lequel nous avons représenté plusieurs moyennes (soit plusieurs algorithmes et leur HP) exploitées sur des simulations courtes sans exploration ($\gamma=0$, $nb\_episodes=100$, $nb\_steps=75000$) en parallèle, afin de déterminer la plus optimale en sélectionnant celle qui obtient le meilleur score.
+
+Les HP optimaux sont ainsi les suivants : $(\alpha=0.1, \epsilon_{ini}=0.8, \gamma=0.9, nb\_episodes=10000, nb\_steps=15000)$
+
+\subsection{Analyse des résultats}
+Nous avons donc un échantillon des HP les plus optimaux, que nous avons utilisé pour lancer plusieurs mêmes simulations courtes sans exploration en parallèle. Pourtant, nous avons finalement des résultats très peu satisfaisants. En effet en effectuant une moyenne des moyennes glissante sur les 10 derniers épisodes de chaque simulation courte (Figure 2), nous observons un score moyen très faible. Ces résultats sont incohérents, et cela pourrait être lié à plusieurs phénomènes.
+
+Par exemple, il est peut être possible que l'algorithme passe trop de temps en exploration (soit que la fonction qui régit epsilon ne décroisse pas assez vite, voir Figure 3).
+
+ Nous avons donc fait le choix de tenter une nouvelle approche.
+
+\section{Algorithme Génétique}
+Ce second choix (qui sort légèrement du sujet de ce projet) nous tenait à cœur et nous a permis d'obtenir d'excellents résultats, c'est pour cela que nous prenons la liberté de présenter une implémentation d'un algorithme génétique (AG).
+
+\subsection{Formalisation}
+La formalisation de cet algorithme se fait par la prise en compte des coordonnées $x,y$ à la fois de l'agent et du Z, de l'état $bullet\_state$ et du sens de déplacement latéral du Z. Ces éléments définissent l'état de notre jeu. Nous conservons les actions définies en début de document
+
+\subsection{Algorithme}
+L'AG que nous avons implémenté repose sur la notion de \textbf{générations} de \textbf{réseaux de neurones}. En effet, pour diriger la prise de décision de notre IA nous avons mis en place un réseau de neurones (RN) de type 6 input layer, 25 relu, 25 relu et 4 output layer pour les 4 actions possibles. Le but de cet algorithme génétique va être d'\textbf{améliorer ce RN à chaque itération/génération}, dans le but d'obtenir le plus haut score.
+
+A chaque génération, nous allons garder seulement les 10\% meilleurs réseaux, auxquels nous allons pouvoir appliquer deux actions : la mutation et le crossover, dans le but de "repeupler" en modifiant les mauvais RN à partir des bons sélectionnés précédemment.
+
+La \textbf{mutation} consiste tout d'abord à prendre un "bon" RN (dans les 10\%) et de copier tous ses poids sur un mauvais RN. Ensuite, pour chaque poids de chaque layer, on tire un nombre entre 0 et 1 , si il est inférieur au mutation rate alors on modifie ce poids en lui rajoutant un valeur aléatoire entre -0.5 et 0.5.
+
+Le \textbf{crossover} consiste quand à lui à dupliquer deux "bons" RN sur de mauvais RN, et d'intervertir un poids aléatoire entre les deux.
+
+De plus, pour mieux démarquer les RN entre eux, nous avons accentué la récompense : en effet lorsqu'un agent (donc son RN associé) touche un Z, il gagne également un certain temps donné de simulation en plus afin d'avoir un score encore plus élevé. (Ce procédé à ses limites, on à quelque fois des simulations qui s'éternisent et jouent "à l'infini").
+
+Pour mener à bien ces \textit{très} nombreuses simulation, nous avons parallélisé nos simulation dans des threads.
+
+\subsection{Apprentissage et Hyperparamètrage}
+Comme précédemment, nous avons sélectionné un échantillon d'HP qui semblent pertinents à étudier :
+\begin{itemize}
+\item Nombre de générations ($gen$)
+\item Population par génération ($pop$ : nombre de RN)
+\item Mutation rate ($mr(x)$ : facteur affectant le fréquence des mutations)
+\item Nombre de Steps ($s$ : temps d'une partie)
+\item Le pas ($p(x)$ : nombre de steps gagnés lors d'une réussite, décroit à chaque touche)
+\end{itemize}
+Nous avons comme précédemment réalisé des études afin de définir nos HP optimaux, qui sont les suivants : $(gen=120,pop=40,mr(x),s=800,p(x),=100)$ avec $mr(x)$ une fonction sigmoïde permettant de faire varier le mutation rate tout au long de la simulation. Et $p(x) = s/2-20*score\_actuel$.
+
+\subsection{Analyse des résultats}
+Cette configuration de notre algorithme génétique nous permet d'obtenir des parties allant jusqu'à plus de 1000 points. Pour visualiser l'évolution de l'apprentissage, on représente à chaque générations la moyenne des scores des dix meilleurs RN.
+
+\section{Conclusion}
+Tout d'abord, les résultats non satisfaisant de QLearning sont sans doute dus à un  mauvais paramétrage soit de nos états soit de nos HP.
+
+L'AG quand à lui à démontré une excellente capacité à produire des réseaux de neurones permettant de jouer sur des très grandes durées sans perdre. Cependant ce n'est pas le procédé le plus optimal. 
+
+En effet un algorithme génétique serait optimal dans un cas ou on aurait plusieurs agents sur une session de jeu, dans nos cas pour une population de 100 agents (soit 100 RN), on doit ouvrir en parallèle 100 sessions de jeu (ce qui est très lourd). 
+\end{document}
