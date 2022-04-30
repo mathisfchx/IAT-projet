@@ -24,7 +24,6 @@ def play() :
             for element in state : 
                 tab[0].append(element)
             action = genetic.run(tab)
-            print(action)
             max = -math.inf
             for i in range(len(action[0])) :
                 if action[0][i] > max :
@@ -32,7 +31,6 @@ def play() :
                     index = i
             next_state, _, is_done = game.step(index)
             state = next_state
-            time.sleep(0.0001)
     except KeyboardInterrupt:
         sys.exit(0)
 

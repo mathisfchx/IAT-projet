@@ -18,8 +18,7 @@ class ThreadWithReturnValue(Thread):
     def run(self):
         #print(type(self._target))
         if self._target is not None:
-            self._return = self._target(*self._args,
-                                                **self._kwargs)
+            self._return = self._target(*self._args,**self._kwargs)
     def join(self, *args):
         Thread.join(self, *args)
         return self._return
@@ -45,8 +44,10 @@ def thread_function(Genetic, SpaceInvader , steps,pas):
     bullet_state = 0
     is_done = False 
     compt = 0 
+    old_score = 0 
+    sum = 0
     tab = [[]]
-    while (compt < steps+(steps-pas)*SpaceInvader.get_score() or is_done ):
+    while (compt < steps+sum or is_done ):
         tab[0].clear()
         state = SpaceInvader.get_state()
         for element in state :
@@ -64,6 +65,10 @@ def thread_function(Genetic, SpaceInvader , steps,pas):
             Genetic.set_score(Genetic.get_score()-0.1)
         previous_state_bullet = bullet_state
         compt += 1
+        if old_score != SpaceInvader.get_score() :
+            if  (steps/2)-50*(SpaceInvader.get_score()) > 0 : 
+                sum = sum +(steps/2)-50*(SpaceInvader.get_score())
+        old_score = SpaceInvader.get_score()
         #print(index)
     #print("C'est fait !", Genetic.get_network().summary())
     #print("SpaceInvader : ", SpaceInvader.get_score())
@@ -197,6 +202,7 @@ def find_best_results(Returns, number_of_genetic) :
     return best_results
 
 def main(number_of_genetic , number_of_thread,steps , mode , increased_steps,pas):
+    moy_score = []
     score = []
     for i in range(number_of_genetic) :
         print("Genetic : ", i)
@@ -207,10 +213,10 @@ def main(number_of_genetic , number_of_thread,steps , mode , increased_steps,pas
         else :
             print("on est dans else")
             Genetics = Initialise_Genetic(number_of_thread)
-            for i in range(number_of_thread) : 
+            for p in range(number_of_thread) : 
                 folder = "logs_network/network_save_"+str(i)
                 file_name = folder+"/checkpoint.h5"
-                Genetics[i].load_network(file_name)
+                Genetics[p].load_network(file_name)
         SpaceI = Initialise_SpaceInvader(number_of_thread)
         print("OK")
         threads = []
@@ -244,10 +250,15 @@ def main(number_of_genetic , number_of_thread,steps , mode , increased_steps,pas
         mode = 0
 
         score.append(average_from_best_result(Best_Result))
-        if i%int(number_of_genetic/4)==0 :
+        sum = 0 
+        for element in score : 
+            sum += element
+        moy_score.append(sum/len(score))
+
+        if i%int(number_of_genetic/2)==0 :
             steps *= 2
         #pas = pas + 5
-    SpaceInvader.save_plot_Genetic(number_of_genetic,score)
+        SpaceInvader.save_plot_Genetic(i+1 ,moy_score)
 
 
 # play a game with one IA 
@@ -262,7 +273,7 @@ def play_game(Genetic, SpaceInvader, steps) :
         
         
 if __name__ == "__main__":
-    number_of_genetic = 200
+    number_of_genetic = 60
     number_of_thread = 80
     steps = 400
     mode = 1
