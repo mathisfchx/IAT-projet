@@ -67,7 +67,8 @@ def thread_function(Genetic, SpaceInvader , steps,pas):
         compt += 1
         if old_score != SpaceInvader.get_score() :
             if  (steps/2)-50*(SpaceInvader.get_score()) > 0 : 
-                sum = sum +(steps/2)-50*(SpaceInvader.get_score())
+                sum = sum +(steps/2)-20*(SpaceInvader.get_score())
+                print(sum)
         old_score = SpaceInvader.get_score()
         #print(index)
     #print("C'est fait !", Genetic.get_network().summary())
@@ -77,7 +78,8 @@ def thread_function(Genetic, SpaceInvader , steps,pas):
 
 #sigmoide 
 def sigmoid(x , max_gen):
-    return 1 / (1 + np.exp((x-2*max_gen)/max_gen))
+    #return 1 / (1 + np.exp((x-2*max_gen)/max_gen))
+    return 0.3-(2*x/max_gen)
 
 # Sort array of tuple with juste the first element of the tuple
 def sort_array(array) :
@@ -226,8 +228,8 @@ def main(number_of_genetic , number_of_thread,steps , mode , increased_steps,pas
             threads[j].start()
         Returns = []
         print("\n \n")
-        for j in range(number_of_thread) : 
-            Returns.append((threads[j].join(),j))
+        for l in range(number_of_thread) : 
+            Returns.append((threads[l].join(),l))
             #print("join")
 
 
@@ -241,9 +243,9 @@ def main(number_of_genetic , number_of_thread,steps , mode , increased_steps,pas
         for Space in SpaceI : 
             Space.reset()
         for k in range(len(Genetics)) : 
-            Genetics[i].reset_score()
+            Genetics[k].reset_score()
         #print(Genetics)
-        mutation_rate = max(sigmoid(i,number_of_genetic)-0.4,0.05)
+        mutation_rate = max(sigmoid(i,number_of_genetic)-0.2,0.05)
         copy_weight_and_mutate(Genetics, Best_Result,int(10),0,mutation_rate)
         save_all(Genetics)
         print("On print les genetics")
@@ -255,8 +257,8 @@ def main(number_of_genetic , number_of_thread,steps , mode , increased_steps,pas
             sum += element
         moy_score.append(sum/len(score))
 
-        if i%int(number_of_genetic/2)==0 :
-            steps *= 2
+        #if i%int(number_of_genetic/2)==0 :
+        #    steps *= 2
         #pas = pas + 5
         SpaceInvader.save_plot_Genetic(i+1 ,moy_score)
 
@@ -272,10 +274,10 @@ def play_game(Genetic, SpaceInvader, steps) :
         state = next_state
         
         
-if __name__ == "__main__":
-    number_of_genetic = 60
-    number_of_thread = 80
-    steps = 400
+if __name__ == "__main__":  
+    number_of_genetic = 120
+    number_of_thread = 40   
+    steps = 800
     mode = 1
     increased_steps = 0
     pas = int(steps*0.9)

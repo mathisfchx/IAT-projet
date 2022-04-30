@@ -6,7 +6,7 @@ import math
 
 import game.SpaceInvaders as Si 
 def play() :
-    i = input("Lequel voulez vous visualiser")
+    i = input("Lequel voulez vous visualiser ")
     i = int(i)
     print("playing todo")
     genetic = ge.Genetic(6,25,4,3)

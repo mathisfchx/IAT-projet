@@ -134,7 +134,7 @@ class Genetic:
 
 def main():
     input_size = 6
-    hidden_size = 5
+    hidden_size = 25
     output_size = 4
     num_layers = 3
     network = Genetic(input_size, hidden_size, output_size, num_layers)
