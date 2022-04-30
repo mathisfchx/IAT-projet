@@ -4,6 +4,7 @@ from game.SpaceInvaders import SpaceInvaders
 from controller.keyboard import KeyboardController
 from controller.random_agent import RandomAgent
 from controller.qagent import QAgent
+import time
 #import for plot 
 import matplotlib.pyplot as plt
 import sys
@@ -154,6 +155,8 @@ def learn(n_episodes = 1000, max_steps=5000):
                 # Selectionne une action 
                 action = controller.select_action(state)
                 #update the action log
+                if action > 3:
+                    action = 0
                 action_logs[action] += 1
                 # Echantillonne l'état suivant et la récompense
                 next_state, reward, is_done = game.step(action)
@@ -186,23 +189,46 @@ def learn(n_episodes = 1000, max_steps=5000):
         # Visualisation des données
 
         # save the logs
-        np.savetxt(f"logs/logs_{args.train_id}.csv", logs, delimiter=",")
+        np.savetxt(f"logs/logs_{args.train_id}_{time.time()}.csv", logs, delimiter=",")
 
-        
-        #print(courbe_1)
-        #print(episode_1)
-        plt.savefig('foo.png')
+
         #game.plot_score(courbe_1, episode_1)
         game.save_plot(courbe_1, episode_1, args.train_id)
+        return courbe_1, episode_1
     except KeyboardInterrupt:
         controller.save()
-        np.savetxt(f"logs/logs_{args.train_id}.csv", logs, delimiter=",")
+        #get the current time in seconds
+        np.savetxt(f"logs/logs_{args.train_id}_{time.time()}.csv", logs, delimiter=",")
+        game.save_plot(courbe_1, episode_1, args.train_id)
         sys.exit(0)
+
+def evaluate():
+    subnet =  "112"
+    #machines = ["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16"]
+    machines = ["06", "08", "16", "max_merged", "mean_merged", "sum_merged"]
+    courbes = [[] for _ in range(len(machines))]
+    episodes = [[] for _ in range(len(machines))]
+    for i in range(len(machines)):
+        print("Evaluating on machine :", machines[i])
+        train_id = subnet + machines[i]
+        args.train_id = train_id
+        args.epsilon = 0.0
+        courbes[i], episodes[i] = learn(n_episodes=50, max_steps=50000)
+    #plot each score on the same graph on plt
+    for i in range(len(machines)):
+        plt.plot(episodes[i], courbes[i], label=subnet+machines[i])
+    plt.legend()
+    #save the graph
+    plt.savefig("graph_comparaison_merged.png")
+    plt.show()
+
+
 
 
 if __name__ == '__main__' :
+    #evaluate()
     if args.play:
         main()
-        play()
+        #play()
     else:
         learn(n_episodes = args.n_episodes, max_steps=args.n_steps)
